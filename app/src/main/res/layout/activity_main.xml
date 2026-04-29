@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    tools:context=".MainActivity">
+
+    <TextView
+        android:id="@+id/textView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Início - 1"
+        android:textSize="20sp"
+        android:textStyle="bold" />
+
+    <View
+        android:id="@+id/divider"
+        android:layout_width="match_parent"
+        android:layout_height="2dp"
+        android:layout_marginTop="5dp"
+        android:layout_marginBottom="5dp"
+        android:background="#030303" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="#C8C5C5D0"
+        android:backgroundTint="#C8C5C5D0"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/textView2"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:backgroundTint="#A59B9B"
+            android:text="Bem vindo"
+            android:textSize="20sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/textView3"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Gerencie seus chamados locais de forma simples e organizada." />
+
+        <Button
+            android:id="@+id/chamado_botao"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Registrar novo chamado" />
+
+        <Button
+            android:id="@+id/ver_chamado_botao"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:backgroundTint="#F3EDF7"
+            android:text="Ver todos os chamados"
+            android:textColor="#0C0C0C" />
+
+        <Button
+            android:id="@+id/filtrar_botao"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:backgroundTint="#F3EDF7"
+            android:text="Filtrar chamados"
+            android:textColor="#0C0C0C" />
+    </LinearLayout>
+</LinearLayout>
