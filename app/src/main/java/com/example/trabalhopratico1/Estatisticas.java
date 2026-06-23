@@ -3,6 +3,7 @@ package com.example.trabalhopratico1;
 import android.os.Bundle;
 import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
@@ -10,7 +11,10 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
-import java.util.concurrent.Executors;
+import com.parse.ParseObject;
+import com.parse.ParseQuery;
+
+import java.util.List;
 
 public class Estatisticas extends AppCompatActivity {
 
@@ -22,7 +26,7 @@ public class Estatisticas extends AppCompatActivity {
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_estatisticas);
 
-        // Configuração segura do WindowInsets usando o ID "main"
+        // Configuração do WindowInsets usando o ID "main"
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
@@ -38,26 +42,55 @@ public class Estatisticas extends AppCompatActivity {
 
         // Ação do botão início para fechar a tela atual e voltar
         inicioBotao.setOnClickListener(v -> finish());
-
-        // Executa a contagem dos dados vindos da Room
-        carregarEstatisticas();
     }
 
-    private void carregarEstatisticas() {
-        Executors.newSingleThreadExecutor().execute(() -> {
-            // Busca a quantidade correspondente ao tamanho de cada lista retornada do banco
-            int abertos = AppDatabase.getInstancia(this).chamadoDao().filtrarPorStatus("Aberto").size();
-            int andamento = AppDatabase.getInstancia(this).chamadoDao().filtrarPorStatus("Em Andamento").size();
-            int concluidos = AppDatabase.getInstancia(this).chamadoDao().filtrarPorStatus("Concluído").size();
-            int total = abertos + andamento + concluidos;
+    // 🔄 O SEGREDO: Atualiza o painel vindo da Nuvem toda vez que a tela reaparecer
+    @Override
+    protected void onResume() {
+        super.onResume();
+        carregarEstatisticasNuvem();
+    }
 
-            // Devolve os valores para a thread principal atualizar a interface gráfica
-            runOnUiThread(() -> {
+    private void carregarEstatisticasNuvem() {
+        // Cria a query apontando para a classe "Chamado" na nuvem
+        ParseQuery<ParseObject> query = ParseQuery.getQuery("Chamado");
+
+        query.findInBackground((chamadosNuvem, e) -> {
+            if (e == null) {
+                int abertos = 0;
+                int andamento = 0;
+                int concluidos = 0;
+
+                if (chamadosNuvem != null) {
+                    // Percorre a lista vinda da nuvem e incrementa o contador correto
+                    for (ParseObject chamado : chamadosNuvem) {
+                        String status = chamado.getString("status"); // Pega o campo 'status' do Parse
+
+                        if (status != null) {
+                            if (status.equalsIgnoreCase("Aberto")) {
+                                abertos++;
+                            } else if (status.equalsIgnoreCase("Em Andamento")) {
+                                andamento++;
+                            } else if (status.equalsIgnoreCase("Concluído")) {
+                                concluidos++;
+                            }
+                        }
+                    }
+                }
+
+                // Calcula o total com base na soma dos status mapeados
+                int total = abertos + andamento + concluidos;
+
+                // Atualiza a interface gráfica (o Parse já roda o callback na UI Thread)
                 txtAberto.setText(String.valueOf(abertos));
                 txtAndamento.setText(String.valueOf(andamento));
                 txtConcluido.setText(String.valueOf(concluidos));
                 txtTotal.setText(String.valueOf(total));
-            });
+
+            } else {
+                // Exibe erro caso a comunicação com o Parse falhe
+                Toast.makeText(Estatisticas.this, "Erro ao calcular estatísticas da nuvem: " + e.getMessage(), Toast.LENGTH_LONG).show();
+            }
         });
     }
 }
