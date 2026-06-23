@@ -18,7 +18,7 @@ import java.util.concurrent.Executors;
 
 public class Cadastro extends AppCompatActivity {
     private ImageView imgViewFoto;
-    private byte[] imagemBytes = null;
+    private String imagemBase64 = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -46,9 +46,13 @@ public class Cadastro extends AppCompatActivity {
                         imgViewFoto.setImageBitmap(imageBitmap);
 
                         // Converte a foto para salvar na Nuvem (Back4App)
+                        // Dentro do seu cameraLauncher, depois de pegar o imageBitmap...
                         java.io.ByteArrayOutputStream stream = new java.io.ByteArrayOutputStream();
                         imageBitmap.compress(android.graphics.Bitmap.CompressFormat.PNG, 100, stream);
-                        imagemBytes = stream.toByteArray();
+                        byte[] bytes = stream.toByteArray();
+
+// Transforma os bytes no "stringão" (Base64)
+                        imagemBase64 = android.util.Base64.encodeToString(bytes, android.util.Base64.DEFAULT);
                     }
                 }
         );
@@ -99,27 +103,28 @@ public class Cadastro extends AppCompatActivity {
                     finish(); // fecha a tela e volta para a Home
                 });
             });
-
-
-            //2. AQUI COMEÇA O SALVAMENTO NA NUVEM (Back4App)
+            // 1. Cria o objeto do chamado com os textos
             com.parse.ParseObject chamadoNuvem = new com.parse.ParseObject("Chamado");
-            chamadoNuvem.put("titulo", titulo);
-            chamadoNuvem.put("descricao", descricao);
+            chamadoNuvem.put("titulo", chamado.titulo);
+            chamadoNuvem.put("descricao", chamado.descricao);
             chamadoNuvem.put("status", chamado.status);
 
-            // Se o usuário tirou uma foto, anexa ao documento da nuvem
-            if (imagemBytes != null) {
-                com.parse.ParseFile parseFile = new com.parse.ParseFile("foto.png", imagemBytes);
-                chamadoNuvem.put("imagem", parseFile);
-            }
+            // 2. Salva a imagem como um texto gigante (se existir)
+                if (imagemBase64 != null) {
+                    chamadoNuvem.put("imagem_base64", imagemBase64);
+                }
 
-            // Salva em segundo plano para não travar a tela
-            chamadoNuvem.saveInBackground(e -> {
-                if (e == null) {
-                    android.widget.Toast.makeText(Cadastro.this, "Salvo localmente e na Nuvem!", android.widget.Toast.LENGTH_SHORT).show();
-                    finish(); // Fecha a tela e volta pra listagem
-                } else {
-                    android.widget.Toast.makeText(Cadastro.this, "Erro na nuvem: " + e.getMessage(), android.widget.Toast.LENGTH_LONG).show();
+            // 3. Salva tudo de uma vez só!
+                chamadoNuvem.saveInBackground(new com.parse.SaveCallback() {
+                @Override
+                public void done(com.parse.ParseException e) {
+                    if (e == null) {
+                        android.widget.Toast.makeText(Cadastro.this, "Chamado salvo com sucesso!", android.widget.Toast.LENGTH_SHORT).show();
+                        imagemBase64 = null; // Limpa para o próximo
+                        finish();
+                    } else {
+                        android.widget.Toast.makeText(Cadastro.this, "Erro: " + e.getMessage(), android.widget.Toast.LENGTH_LONG).show();
+                    }
                 }
             });
         });

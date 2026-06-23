@@ -1,7 +1,8 @@
-package com.example.trabalhopratico1; // Confirme se o pacote está correto
+package com.example.trabalhopratico1; // Mantenha o seu pacote correto
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.util.Base64; // Importante para decodificar o "stringão"
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -11,7 +12,6 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.parse.ParseFile;
 import com.parse.ParseObject;
 
 import java.util.List;
@@ -35,22 +35,31 @@ public class ChamadoNuvemAdapter extends RecyclerView.Adapter<ChamadoNuvemAdapte
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         ParseObject chamado = listaChamados.get(position);
 
-        // Preenche os textos buscando as chaves exatas que você salvou no Back4App
+        // Preenche os textos buscando as chaves exatas que salvamos no Back4App
         holder.txtTitulo.setText(chamado.getString("titulo"));
         holder.txtLocal.setText("Local: " + chamado.getString("local"));
         holder.txtStatus.setText("Status: " + chamado.getString("status"));
 
-        // Carrega a imagem da nuvem, se existir
-        ParseFile imagemFile = chamado.getParseFile("imagem");
-        if (imagemFile != null) {
-            imagemFile.getDataInBackground((data, e) -> {
-                if (e == null && data != null) {
-                    Bitmap bitmap = BitmapFactory.decodeByteArray(data, 0, data.length);
-                    holder.imgMiniatura.setImageBitmap(bitmap);
-                }
-            });
+        // 1. Pegamos o "stringão" Base64 que representa a imagem
+        String imagemBase64 = chamado.getString("imagem_base64");
+
+        // 2. Se houver um texto de imagem salvo, transformamos de volta em foto
+        if (imagemBase64 != null && !imagemBase64.isEmpty()) {
+            try {
+                // Decodifica a String de volta para um array de bytes
+                byte[] decodedString = Base64.decode(imagemBase64, Base64.DEFAULT);
+
+                // Converte o array de bytes para um Bitmap utilizável pelo Android
+                Bitmap bitmap = BitmapFactory.decodeByteArray(decodedString, 0, decodedString.length);
+
+                // Exibe a foto na miniatura do item
+                holder.imgMiniatura.setImageBitmap(bitmap);
+            } catch (Exception e) {
+                e.printStackTrace();
+                holder.imgMiniatura.setImageDrawable(null); // Caso dê erro na conversão, limpa o espaço
+            }
         } else {
-            // Se não tiver imagem, limpa o ImageView ou coloca uma imagem padrão
+            // Se o chamado não tiver foto associada, limpa a miniatura
             holder.imgMiniatura.setImageDrawable(null);
         }
     }
@@ -66,7 +75,7 @@ public class ChamadoNuvemAdapter extends RecyclerView.Adapter<ChamadoNuvemAdapte
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
-            // Mapeando os IDs do XML item_chamado.xml
+            // Vinculando os componentes do item_chamado.xml
             txtTitulo = itemView.findViewById(R.id.item_titulo);
             txtLocal = itemView.findViewById(R.id.txt_item_local);
             txtStatus = itemView.findViewById(R.id.item_status);
