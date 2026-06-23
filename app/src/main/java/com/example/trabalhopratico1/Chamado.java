@@ -12,5 +12,6 @@ public class Chamado {
     public String titulo;
     public String descricao;
     public String dataCadastro;
-    public String status;     // "Aberto", "Em Andamento", "Concluído"
+    public String status;
+    // "Aberto", "Em Andamento", "Concluído"
 }

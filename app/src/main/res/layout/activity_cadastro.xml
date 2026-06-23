@@ -69,6 +69,22 @@
             </com.google.android.material.textfield.TextInputLayout>
 
             <Button
+                android:id="@+id/btn_camera"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Tirar Foto do Problema"
+                android:layout_marginTop="16dp" />
+
+            <ImageView
+                android:id="@+id/img_foto"
+                android:layout_width="match_parent"
+                android:layout_height="200dp"
+                android:layout_marginTop="8dp"
+                android:scaleType="centerCrop"
+                android:background="#E0E0E0"
+                android:contentDescription="Foto do problema" />
+
+            <Button
                 android:id="@+id/salvar_botao"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"

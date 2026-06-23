@@ -1,5 +1,7 @@
 package com.example.trabalhopratico1;
 
+import com.parse.ParseQuery;
+import com.parse.ParseObject;
 import android.content.Intent;
 import android.os.Bundle;
 import android.widget.Button;
@@ -26,6 +28,21 @@ public class Listagem extends AppCompatActivity {
         Button inicioBotao = findViewById(R.id.inicio_botao);
         FloatingActionButton cadastrarBotao = findViewById(R.id.cadastrar_botao);
         recyclerView = findViewById(R.id.recycler_chamados);
+        recyclerView.setLayoutManager(new androidx.recyclerview.widget.LinearLayoutManager(this));
+
+        // Fazendo a consulta no Back4App
+        ParseQuery<ParseObject> query = ParseQuery.getQuery("Chamado");
+        query.orderByDescending("createdAt"); // Ordena para mostrar os mais recentes primeiro
+
+        query.findInBackground((chamadosNuvem, e) -> {
+            if (e == null) {
+                // Se deu tudo certo, passa a lista para o nosso novo Adapter
+                ChamadoNuvemAdapter adapter = new ChamadoNuvemAdapter(chamadosNuvem);
+                recyclerView.setAdapter(adapter);
+            } else {
+                android.widget.Toast.makeText(Listagem.this, "Erro ao carregar da nuvem: " + e.getMessage(), android.widget.Toast.LENGTH_LONG).show();
+            }
+        });
 
         // 1. MAPEAMOS O NOVO BOTÃO DE FILTROS
         Button filtrosBotao = findViewById(R.id.filtros_botao);
