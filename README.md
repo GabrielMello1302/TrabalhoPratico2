@@ -1,4 +1,4 @@
-# Trabalho Prático 1: Desenvolvimento Mobile
+# Trabalho Prático 2: Desenvolvimento Mobile
 
 **Descrição:** Aplicativo para registro e gerenciamento de chamados, desenvolvido com foco na persistência de dados utilizando o banco de dados nativo do Android.
 
