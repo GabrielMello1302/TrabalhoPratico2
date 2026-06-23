@@ -6,7 +6,6 @@
     android:orientation="vertical"
     tools:context=".Listagem">
 
-    <!-- Cabeçalho -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -30,20 +29,32 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center_vertical"
             android:layout_weight="1"
-            android:text="Meus Chamados - 3"
+            android:text="Meus Chamados"
             android:textSize="20sp"
             android:textStyle="bold" />
     </LinearLayout>
 
-    <!-- Lista dinâmica -->
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/recycler_chamados"
+    <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="1"
-        android:padding="8dp" />
+        android:layout_weight="1">
 
-    <!-- FAB -->
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/recycler_chamados"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:padding="8dp" />
+
+        <TextView
+            android:id="@+id/tv_lista_vazia"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:text="Nenhum chamado cadastrado."
+            android:textColor="#888888"
+            android:visibility="gone" />
+    </FrameLayout>
+
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/cadastrar_botao"
         android:layout_width="wrap_content"

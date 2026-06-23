@@ -2,11 +2,13 @@ package com.example.trabalhopratico1;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.view.Gravity;
+import android.view.View;
 import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
 import java.util.List;
@@ -35,6 +37,7 @@ public class Detalhes extends AppCompatActivity {
 
         voltarBotao.setOnClickListener(v -> finish());
 
+        // Configuração padrão inicial para o SQLite
         atendimentoBotao.setOnClickListener(v -> {
             Intent intent = new Intent(this, Atendimento.class);
             intent.putExtra("chamado_id", chamadoId);
@@ -47,7 +50,6 @@ public class Detalhes extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        // Recarrega ao voltar do Atendimento para refletir novo histórico
         TextView tvId        = findViewById(R.id.detalhe_id);
         TextView tvTitulo    = findViewById(R.id.detalhe_titulo);
         TextView tvStatus    = findViewById(R.id.detalhe_status);
@@ -58,6 +60,82 @@ public class Detalhes extends AppCompatActivity {
 
     private void carregarDados(TextView tvId, TextView tvTitulo, TextView tvStatus,
                                TextView tvDescricao, TextView tvData) {
+
+        Button atendimentoBotao = findViewById(R.id.atendimento_botao);
+
+        // ☁️ FLUXO DA NUVEM
+        if (getIntent().hasExtra("origem") && "nuvem".equals(getIntent().getStringExtra("origem"))) {
+
+            String objectId = getIntent().getStringExtra("object_id");
+            String idFormatado = getIntent().getStringExtra("id_formatado");
+            String titulo = getIntent().getStringExtra("titulo");
+            String status = getIntent().getStringExtra("status");
+            String descricao = getIntent().getStringExtra("descricao");
+            String local = getIntent().getStringExtra("local");
+
+            tvId.setText(idFormatado != null ? idFormatado : "#---");
+            tvTitulo.setText(titulo);
+            tvStatus.setText(status);
+            tvDescricao.setText(descricao + "\n\n📍 Local original: " + local);
+            tvData.setText("Sincronizado via Nuvem");
+
+            atualizarCorStatus(tvStatus, status);
+
+            // 🔥 CONFIGURA O BOTÃO PARA ATUALIZAR O STATUS NA NUVEM
+            if (atendimentoBotao != null) {
+                atendimentoBotao.setVisibility(View.VISIBLE);
+                atendimentoBotao.setText("Alterar Status (Nuvem)");
+
+                atendimentoBotao.setOnClickListener(v -> {
+                    String[] opcoes = {"Aberto", "Em Andamento", "Concluído"};
+
+                    new AlertDialog.Builder(this)
+                            .setTitle("Alterar Status na Nuvem")
+                            .setItems(opcoes, (dialog, which) -> {
+                                String novoStatus = opcoes[which];
+
+                                // Cria a referência ao objeto do Back4App para atualizar
+                                com.parse.ParseObject chamadoNuvem = com.parse.ParseObject.createWithoutData("Chamado", objectId);
+                                chamadoNuvem.put("status", novoStatus);
+
+                                // Salva em background de forma assíncrona
+                                chamadoNuvem.saveInBackground(e -> {
+                                    if (e == null) {
+                                        Toast.makeText(this, "Nuvem atualizada com sucesso!", Toast.LENGTH_SHORT).show();
+                                        tvStatus.setText(novoStatus);
+                                        atualizarCorStatus(tvStatus, novoStatus);
+
+                                        // Atualiza a intent para caso o usuário rotacione a tela ou reabra
+                                        getIntent().putExtra("status", novoStatus);
+                                    } else {
+                                        Toast.makeText(this, "Erro ao atualizar nuvem: " + e.getMessage(), Toast.LENGTH_LONG).show();
+                                    }
+                                });
+                            })
+                            .show();
+                });
+            }
+
+            historicoContainer.removeAllViews();
+            TextView aviso = new TextView(this);
+            aviso.setText("Histórico de intervenções disponível apenas nos chamados locais.");
+            aviso.setTextColor(0xFF888888);
+            historicoContainer.addView(aviso);
+
+            return; // Garante que o código do SQLite abaixo não seja executado
+        }
+
+        // 📱 FLUXO DO SQLITE (LOCAL)
+        if (atendimentoBotao != null) {
+            atendimentoBotao.setVisibility(View.VISIBLE);
+            atendimentoBotao.setText("Atendimento");
+            atendimentoBotao.setOnClickListener(v -> {
+                Intent intent = new Intent(this, Atendimento.class);
+                intent.putExtra("chamado_id", chamadoId);
+                startActivity(intent);
+            });
+        }
+
         Executors.newSingleThreadExecutor().execute(() -> {
             Chamado chamado = AppDatabase.getInstancia(this)
                     .chamadoDao().buscarPorId(chamadoId);
@@ -65,29 +143,17 @@ public class Detalhes extends AppCompatActivity {
                     .historicoDao().listarPorChamado(chamadoId);
 
             runOnUiThread(() -> {
-                tvId.setText("#" + String.format("%03d", chamado.id));
-                tvTitulo.setText(chamado.titulo);
-                tvStatus.setText(chamado.status);
-                tvDescricao.setText(chamado.descricao);
-                tvData.setText(chamado.dataCadastro);
-
-                // Cor do status
-                switch (chamado.status) {
-                    case "Em Andamento":
-                        tvStatus.setBackgroundColor(0xFF1565C0);
-                        break;
-                    case "Concluído":
-                        tvStatus.setBackgroundColor(0xFF2E7D32);
-                        break;
-                    default:
-                        tvStatus.setBackgroundColor(0xFF6750A4);
-                        break;
+                if (chamado != null) {
+                    tvId.setText("#" + String.format("%03d", chamado.id));
+                    tvTitulo.setText(chamado.titulo);
+                    tvStatus.setText(chamado.status);
+                    tvDescricao.setText(chamado.descricao);
+                    tvData.setText(chamado.dataCadastro);
+                    atualizarCorStatus(tvStatus, chamado.status);
                 }
 
-                // Limpa e reconstrói o histórico
                 historicoContainer.removeAllViews();
-
-                if (historicos.isEmpty()) {
+                if (historicos == null || historicos.isEmpty()) {
                     TextView vazio = new TextView(this);
                     vazio.setText("Nenhuma intervenção registrada ainda.");
                     vazio.setTextColor(0xFF888888);
@@ -112,5 +178,21 @@ public class Detalhes extends AppCompatActivity {
                 }
             });
         });
+    }
+
+    // Método auxiliar para evitar código duplicado ao colorir os status
+    private void atualizarCorStatus(TextView tvStatus, String status) {
+        if (status == null) return;
+        switch (status) {
+            case "Em Andamento":
+                tvStatus.setBackgroundColor(0xFF1565C0);
+                break;
+            case "Concluído":
+                tvStatus.setBackgroundColor(0xFF2E7D32);
+                break;
+            default:
+                tvStatus.setBackgroundColor(0xFF6750A4);
+                break;
+        }
     }
 }

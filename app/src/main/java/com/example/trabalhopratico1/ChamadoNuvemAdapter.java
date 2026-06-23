@@ -35,33 +35,44 @@ public class ChamadoNuvemAdapter extends RecyclerView.Adapter<ChamadoNuvemAdapte
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         ParseObject chamado = listaChamados.get(position);
 
-        // Preenche os textos buscando as chaves exatas que salvamos no Back4App
-        holder.txtTitulo.setText(chamado.getString("titulo"));
+        // 🔥 SOLUÇÃO DO ID: Calcula o número sequencial com base na posição e tamanho da lista
+        int numeroChamado = listaChamados.size() - position;
+        String idFormatado = String.format("#%03d", numeroChamado);
+
+        // Preenche os textos (concatenando o ID calculado com o título)
+        holder.txtTitulo.setText(idFormatado + " " + chamado.getString("titulo"));
         holder.txtLocal.setText("Local: " + chamado.getString("local"));
         holder.txtStatus.setText("Status: " + chamado.getString("status"));
 
-        // 1. Pegamos o "stringão" Base64 que representa a imagem
+        // Carrega a imagem em Base64
         String imagemBase64 = chamado.getString("imagem_base64");
-
-        // 2. Se houver um texto de imagem salvo, transformamos de volta em foto
         if (imagemBase64 != null && !imagemBase64.isEmpty()) {
             try {
-                // Decodifica a String de volta para um array de bytes
                 byte[] decodedString = Base64.decode(imagemBase64, Base64.DEFAULT);
-
-                // Converte o array de bytes para um Bitmap utilizável pelo Android
                 Bitmap bitmap = BitmapFactory.decodeByteArray(decodedString, 0, decodedString.length);
-
-                // Exibe a foto na miniatura do item
                 holder.imgMiniatura.setImageBitmap(bitmap);
             } catch (Exception e) {
                 e.printStackTrace();
-                holder.imgMiniatura.setImageDrawable(null); // Caso dê erro na conversão, limpa o espaço
+                holder.imgMiniatura.setImageDrawable(null);
             }
         } else {
-            // Se o chamado não tiver foto associada, limpa a miniatura
             holder.imgMiniatura.setImageDrawable(null);
         }
+
+        holder.itemView.setOnClickListener(v -> {
+            android.content.Intent intent = new android.content.Intent(v.getContext(), Detalhes.class);
+
+            intent.putExtra("origem", "nuvem");
+            intent.putExtra("id_formatado", idFormatado);
+            intent.putExtra("object_id", chamado.getObjectId());
+            intent.putExtra("titulo", chamado.getString("titulo"));
+            intent.putExtra("descricao", chamado.getString("descricao"));
+            intent.putExtra("local", chamado.getString("local"));
+            intent.putExtra("status", chamado.getString("status"));
+            intent.putExtra("imagem_base64", imagemBase64);
+
+            v.getContext().startActivity(intent);
+        });
     }
 
     @Override
@@ -77,7 +88,7 @@ public class ChamadoNuvemAdapter extends RecyclerView.Adapter<ChamadoNuvemAdapte
             super(itemView);
             // Vinculando os componentes do item_chamado.xml
             txtTitulo = itemView.findViewById(R.id.item_titulo);
-            txtLocal = itemView.findViewById(R.id.txt_item_local);
+            txtLocal = itemView.findViewById(R.id.item_local);
             txtStatus = itemView.findViewById(R.id.item_status);
             imgMiniatura = itemView.findViewById(R.id.img_miniatura);
         }
