@@ -51,8 +51,7 @@ public class MainActivity extends AppCompatActivity {
                 } else if (id == R.id.nav_listagem) {
                     startActivity(new Intent(MainActivity.this, Listagem.class));
                 } else if (id == R.id.nav_estatisticas) {
-                    // Crie a Activity de Estatisticas depois e mude aqui
-                    Toast.makeText(MainActivity.this, "Em breve: Estatísticas", Toast.LENGTH_SHORT).show();
+                    startActivity(new Intent(MainActivity.this, Estatisticas.class));
                 } else if (id == R.id.nav_sobre) {
                     startActivity(new Intent(MainActivity.this, Sobre.class));
                 }
