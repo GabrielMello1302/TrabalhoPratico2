@@ -14,8 +14,6 @@ import androidx.core.view.WindowInsetsCompat;
 import com.parse.ParseObject;
 import com.parse.ParseQuery;
 
-import java.util.List;
-
 public class Estatisticas extends AppCompatActivity {
 
     private TextView txtTotal, txtAberto, txtAndamento, txtConcluido;
@@ -44,7 +42,7 @@ public class Estatisticas extends AppCompatActivity {
         inicioBotao.setOnClickListener(v -> finish());
     }
 
-    // 🔄 O SEGREDO: Atualiza o painel vindo da Nuvem toda vez que a tela reaparecer
+    // 🔄 O SEGREDO: Atualiza o painel vindo da Nuvem toda a vez que a tela reaparecer
     @Override
     protected void onResume() {
         super.onResume();

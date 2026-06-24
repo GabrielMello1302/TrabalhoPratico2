@@ -12,7 +12,7 @@ import java.util.List;
 
 public class ChamadoAdapter extends RecyclerView.Adapter<ChamadoAdapter.ViewHolder> {
 
-    // Interface para capturar o clique em um card
+    //Interface para capturar o clique em um card
     public interface OnItemClickListener {
         void onItemClick(Chamado chamado);
     }
@@ -25,7 +25,7 @@ public class ChamadoAdapter extends RecyclerView.Adapter<ChamadoAdapter.ViewHold
         this.listener = listener;
     }
 
-    // Cria a "view" de cada item — infla o item_chamado.xml
+    // Ao Criar a "view" de cada item — infla o item_chamado.xml
     @NonNull
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {

@@ -1,5 +1,6 @@
 package com.example.trabalhopratico1;
 
+import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
@@ -58,6 +59,7 @@ public class Detalhes extends AppCompatActivity {
         carregarDados(tvId, tvTitulo, tvStatus, tvDescricao, tvData);
     }
 
+    @SuppressLint("SetTextI18n")
     private void carregarDados(TextView tvId, TextView tvTitulo, TextView tvStatus,
                                TextView tvDescricao, TextView tvData) {
 

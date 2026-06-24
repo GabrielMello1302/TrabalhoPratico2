@@ -36,9 +36,7 @@ public class Listagem extends AppCompatActivity {
 
         inicioBotao.setOnClickListener(v -> finish());
 
-        cadastrarBotao.setOnClickListener(v -> {
-            startActivity(new Intent(this, Cadastro.class));
-        });
+        cadastrarBotao.setOnClickListener(v -> startActivity(new Intent(this, Cadastro.class)));
 
         // Abre a tela de filtros independente
         filtrosBotao.setOnClickListener(v -> {
@@ -50,7 +48,7 @@ public class Listagem extends AppCompatActivity {
         // pois o onResume() já é executado logo em seguida quando a tela abre!
     }
 
-    // 🔄 O SEGREDO: Atualiza a lista da Nuvem automaticamente toda vez que a tela aparecer
+    //Atualiza a lista da Nuvem automaticamente toda a vezes que a tela aparecer
     @Override
     protected void onResume() {
         super.onResume();

@@ -86,7 +86,7 @@ public class MainActivity extends AppCompatActivity {
                 if (drawerLayout.isDrawerOpen(GravityCompat.START)) {
                     drawerLayout.closeDrawer(GravityCompat.START);
                 } else {
-                    // Se o menu estiver fechado, permite que o botão voltar aja normalmente
+                    // Se o menu estiver fechado, permite que o botão voltar ha já normalmente
                     setEnabled(false);
                     getOnBackPressedDispatcher().onBackPressed();
                 }

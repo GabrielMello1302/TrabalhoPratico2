@@ -38,7 +38,7 @@ public class Cadastro extends AppCompatActivity {
                 new androidx.activity.result.contract.ActivityResultContracts.StartActivityForResult(),
                 result -> {
                     if (result.getResultCode() == RESULT_OK && result.getData() != null) {
-                        // Pega a foto que voltou da câmera
+                        // Pega a foto que voltou da camêra
                         android.os.Bundle extras = result.getData().getExtras();
                         android.graphics.Bitmap imageBitmap = (android.graphics.Bitmap) extras.get("data");
 
@@ -46,7 +46,7 @@ public class Cadastro extends AppCompatActivity {
                         imgViewFoto.setImageBitmap(imageBitmap);
 
                         // Converte a foto para salvar na Nuvem (Back4App)
-                        // Dentro do seu cameraLauncher, depois de pegar o imageBitmap...
+                        // Dentro do seu cameraLauncher,depois de pegar o imageBitmap...
                         java.io.ByteArrayOutputStream stream = new java.io.ByteArrayOutputStream();
                         imageBitmap.compress(android.graphics.Bitmap.CompressFormat.PNG, 100, stream);
                         byte[] bytes = stream.toByteArray();
@@ -73,7 +73,7 @@ public class Cadastro extends AppCompatActivity {
         // Botão Voltar
         inicioBotao.setOnClickListener(v -> finish());
 
-        // Botão Salvar
+        // Botão salvar
         salvarBotao.setOnClickListener(v -> {
 
             String titulo    = tituloInput.getText().toString().trim();
@@ -93,7 +93,7 @@ public class Cadastro extends AppCompatActivity {
             chamado.descricao  = descricao;
             chamado.status     = "Aberto"; // sempre começa como Aberto
 
-            // Salva no banco em uma thread separada
+            // Salva no banco numa thread separada
             Executors.newSingleThreadExecutor().execute(() -> {
                 AppDatabase.getInstancia(this).chamadoDao().inserir(chamado);
 

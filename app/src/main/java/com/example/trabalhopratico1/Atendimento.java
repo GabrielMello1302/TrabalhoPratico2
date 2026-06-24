@@ -23,7 +23,7 @@ public class Atendimento extends AppCompatActivity {
         setContentView(R.layout.activity_atendimento);
 
         db = AppDatabase.getInstancia(this);
-        // Recebe o ID vindo da tela de Detalhes
+        // Recebe o ‘ID’ vindo da tela de Detalhes
         chamadoId = getIntent().getIntExtra("chamado_id", -1);
         Button voltarBotao = findViewById(R.id.voltar_botao3);
         voltarBotao.setOnClickListener(v -> finish());
@@ -36,9 +36,7 @@ public class Atendimento extends AppCompatActivity {
 
         findViewById(R.id.cancelar_botao).setOnClickListener(v -> finish());
 
-        findViewById(R.id.salvar_atendimento_botao).setOnClickListener(v -> {
-            salvarIntervencao();
-        });
+        findViewById(R.id.salvar_atendimento_botao).setOnClickListener(v ->salvarIntervencao());
     }
 
     private void salvarIntervencao() {
